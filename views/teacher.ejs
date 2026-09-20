@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teacher Dashboard - ClassPulse</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="container">
+  <a href="/">← Home</a>
+  <h1>Teacher Dashboard</h1>
+
+  <div id="setup">
+    <div class="panel">
+      <h2>Create Class</h2>
+      <form id="createForm">
+        <label>Topic</label>
+        <input id="topic" value="DBMS Normalization" required>
+
+        <label>Mini Quiz Question</label>
+        <input id="quizQuestion" value="Which normal form removes partial dependency?" required>
+
+        <label>Option 1</label>
+        <input class="option" value="1NF" required>
+
+        <label>Option 2</label>
+        <input class="option" value="2NF" required>
+
+        <label>Option 3</label>
+        <input class="option" value="3NF" required>
+
+        <label>Option 4</label>
+        <input class="option" value="BCNF" required>
+
+        <label>Correct option number</label>
+        <select id="correctAnswer">
+          <option value="0">1NF</option>
+          <option value="1" selected>2NF</option>
+          <option value="2">3NF</option>
+          <option value="3">BCNF</option>
+        </select>
+
+        <button type="submit">Create Class</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard" class="hidden">
+    <div class="panel">
+      <h2>Class Code: <span id="classCode"></span></h2>
+      <p>Ask students to open the Student page and enter this code.</p>
+      <h3 id="topicTitle"></h3>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat"><span id="total">0</span><small>Responses</small></div>
+      <div class="stat"><span id="cri">0%</span><small>Classroom Resonance Index</small></div>
+      <div class="stat"><span id="quizAccuracy">0%</span><small>Quiz Accuracy</small></div>
+    </div>
+
+    <div class="panel">
+      <h2>Live Understanding</h2>
+      <div class="bars">
+        <div>🟢 Understand <b id="understand">0</b></div>
+        <div>🟡 Somewhat <b id="somewhat">0</b></div>
+        <div>🔴 Don't understand <b id="dontUnderstand">0</b></div>
+      </div>
+      <div class="message" id="status">Waiting for responses</div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+
+document.getElementById("createForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const options = [...document.querySelectorAll(".option")].map(x => x.value);
+
+  const body = {
+    topic: document.getElementById("topic").value,
+    quizQuestion: document.getElementById("quizQuestion").value,
+    quizOptions: options,
+    correctAnswer: document.getElementById("correctAnswer").value
+  };
+
+  const response = await fetch("/api/classrooms", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    alert(data.message);
+    return;
+  }
+
+  document.getElementById("setup").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+  document.getElementById("classCode").textContent = data.code;
+  document.getElementById("topicTitle").textContent = "Topic: " + body.topic;
+
+  socket.emit("join-class", data.code);
+
+  loadStats(data.code);
+});
+
+socket.on("stats:update", updateStats);
+
+async function loadStats(code) {
+  const response = await fetch("/api/stats/" + code);
+  const stats = await response.json();
+  updateStats(stats);
+}
+
+function updateStats(stats) {
+  document.getElementById("total").textContent = stats.total;
+  document.getElementById("cri").textContent = stats.cri + "%";
+  document.getElementById("quizAccuracy").textContent = stats.quizAccuracy + "%";
+  document.getElementById("understand").textContent = stats.understand;
+  document.getElementById("somewhat").textContent = stats.somewhat;
+  document.getElementById("dontUnderstand").textContent = stats.dontUnderstand;
+  document.getElementById("status").textContent = stats.status;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student - ClassPulse</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="container">
+  <a href="/">← Home</a>
+  <h1>Student Feedback</h1>
+
+  <div id="joinBox" class="panel">
+    <h2>Join Class</h2>
+    <input id="code" placeholder="Enter class code" maxlength="6">
+    <button id="joinBtn">Join</button>
+    <p id="joinError" class="error"></p>
+  </div>
+
+  <div id="feedbackBox" class="panel hidden">
+    <h2 id="topic"></h2>
+    <p>How well did you understand this topic?</p>
+
+    <div class="understanding">
+      <button data-level="understand">🟢<br>Understand</button>
+      <button data-level="somewhat">🟡<br>Somewhat</button>
+      <button data-level="dont-understand">🔴<br>Don't understand</button>
+    </div>
+
+    <h3 id="question"></h3>
+    <div id="options"></div>
+
+    <button id="submitBtn" disabled>Submit Anonymous Response</button>
+    <p id="result"></p>
+  </div>
+</div>
+
+<script>
+let classCode = "";
+let understanding = "";
+let selectedAnswer = null;
+
+document.getElementById("joinBtn").addEventListener("click", async () => {
+  const code = document.getElementById("code").value.trim().toUpperCase();
+
+  if (!code) return;
+
+  const response = await fetch("/api/classrooms/" + code);
+  const data = await response.json();
+
+  if (!response.ok) {
+    document.getElementById("joinError").textContent = data.message;
+    return;
+  }
+
+  classCode = data.code;
+  document.getElementById("joinBox").classList.add("hidden");
+  document.getElementById("feedbackBox").classList.remove("hidden");
+  document.getElementById("topic").textContent = "Topic: " + data.topic;
+  document.getElementById("question").textContent = data.quizQuestion;
+
+  const options = document.getElementById("options");
+  options.innerHTML = "";
+
+  data.quizOptions.forEach((option, index) => {
+    const button = document.createElement("button");
+    button.className = "quiz-option";
+    button.textContent = option;
+    button.onclick = () => {
+      selectedAnswer = index;
+      document.querySelectorAll(".quiz-option").forEach(x => x.classList.remove("selected"));
+      button.classList.add("selected");
+      checkSubmit();
+    };
+    options.appendChild(button);
+  });
+});
+
+document.querySelectorAll(".understanding button").forEach(button => {
+  button.addEventListener("click", () => {
+    understanding = button.dataset.level;
+    document.querySelectorAll(".understanding button").forEach(x => x.classList.remove("selected"));
+    button.classList.add("selected");
+    checkSubmit();
+  });
+});
+
+function checkSubmit() {
+  document.getElementById("submitBtn").disabled =
+    !understanding || selectedAnswer === null;
+}
+
+document.getElementById("submitBtn").addEventListener("click", async () => {
+  const response = await fetch("/api/responses", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      classCode,
+      understanding,
+      quizAnswer: selectedAnswer
+    })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    alert(data.message);
+    return;
+  }
+
+  document.getElementById("result").textContent =
+    "✅ Response submitted anonymously. Thank you!";
+
+  document.getElementById("submitBtn").disabled = true;
+});
+</script>
+</body>
+</html>
