@@ -2,558 +2,702 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>ClassPulse - Teacher Dashboard</title>
 
-   <link rel="stylesheet" href="/style.css">
-
+    <link rel="stylesheet" href="/style.css">
 </head>
-
 
 <body>
 
-    <!-- ================= TEACHER PAGE ================= -->
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
 
-    <section id="teacher-page" class="page active">
+    <nav class="dashboard-navbar">
+
+        <div class="dashboard-brand">
+            <span class="brand-icon">📚</span>
+            <span>ClassPulse</span>
+        </div>
+
+        <div class="dashboard-nav-links">
+
+            <a href="/" class="nav-link">
+                🏠 Home
+            </a>
+
+            <a href="/teacher" class="nav-link active">
+                👨‍🏫 Teacher
+            </a>
+
+            <a href="/student" class="nav-link">
+                👩‍🎓 Student
+            </a>
+
+        </div>
+
+        <button class="logout-btn" onclick="logout()">
+            🚪 Logout
+        </button>
+
+    </nav>
 
 
-        <!-- HEADER -->
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
 
-        <header class="dashboard-header">
+    <main class="dashboard-container">
 
-            <div class="brand">
+        <!-- Welcome -->
 
-                <h1>ClassPulse</h1>
+        <section class="dashboard-welcome">
 
-                <span>
-                    Teacher Dashboard
+            <div>
+
+                <span class="welcome-label">
+                    👋 Welcome Teacher
                 </span>
+
+                <h1>
+                    Create an Interactive Class
+                </h1>
+
+                <p>
+                    Create a class, add a quiz question,
+                    and let students participate using a unique code.
+                </p>
+
+            </div>
+
+            <div class="welcome-icon">
+                👨‍🏫
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CREATE CLASS
+        ================================================== -->
+
+        <section class="dashboard-card">
+
+            <div class="card-heading">
+
+                <div class="card-icon">
+                    🏫
+                </div>
+
+                <div>
+                    <h2>Create New Class</h2>
+
+                    <p>
+                        Add a topic and create a quiz for your students.
+                    </p>
+                </div>
 
             </div>
 
 
-            <div class="header-actions">
+            <form id="create-class-form">
 
-                <span id="teacher-name-display">
-                    Teacher
-                </span>
+                <!-- Topic -->
+
+                <div class="form-group">
+
+                    <label for="topic">
+                        📖 Class Topic
+                    </label>
+
+                    <input
+                        type="text"
+                        id="topic"
+                        name="topic"
+                        placeholder="Example: Introduction to Artificial Intelligence"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Quiz Question -->
+
+                <div class="form-group">
+
+                    <label for="quizQuestion">
+                        ❓ Quiz Question
+                    </label>
+
+                    <textarea
+                        id="quizQuestion"
+                        name="quizQuestion"
+                        rows="3"
+                        placeholder="Enter your quiz question..."
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Options -->
+
+                <div class="quiz-options-grid">
+
+                    <div class="form-group">
+
+                        <label>
+                            🔵 Option 1
+                        </label>
+
+                        <input
+                            type="text"
+                            id="option0"
+                            placeholder="Enter option 1"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            🟢 Option 2
+                        </label>
+
+                        <input
+                            type="text"
+                            id="option1"
+                            placeholder="Enter option 2"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            🟡 Option 3
+                        </label>
+
+                        <input
+                            type="text"
+                            id="option2"
+                            placeholder="Enter option 3"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            🟣 Option 4
+                        </label>
+
+                        <input
+                            type="text"
+                            id="option3"
+                            placeholder="Enter option 4"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- Correct Answer -->
+
+                <div class="form-group">
+
+                    <label for="correctAnswer">
+                        ✅ Correct Answer
+                    </label>
+
+                    <select id="correctAnswer" required>
+
+                        <option value="">
+                            Select the correct option
+                        </option>
+
+                        <option value="0">
+                            Option 1
+                        </option>
+
+                        <option value="1">
+                            Option 2
+                        </option>
+
+                        <option value="2">
+                            Option 3
+                        </option>
+
+                        <option value="3">
+                            Option 4
+                        </option>
+
+                    </select>
+
+                </div>
+
 
                 <button
-                    type="button"
-                    class="logout-btn"
-                    id="teacher-logout-btn">
-                    Logout
+                    type="submit"
+                    class="primary-btn"
+                >
+                    🚀 Create Class
+                </button>
+
+            </form>
+
+
+            <!-- Success -->
+
+            <div
+                id="class-created"
+                class="class-code-box hidden"
+            >
+
+                <div class="success-icon">
+                    🎉
+                </div>
+
+                <h2>Class Created Successfully!</h2>
+
+                <p>
+                    Share this unique code with your students.
+                </p>
+
+                <div class="generated-code">
+                    <span id="generated-code">
+                        ABC123
+                    </span>
+                </div>
+
+                <button
+                    class="secondary-btn"
+                    onclick="copyClassCode()"
+                >
+                    📋 Copy Class Code
                 </button>
 
             </div>
 
-        </header>
+        </section>
 
 
-        <!-- MAIN -->
+        <!-- =================================================
+             CLASS STATISTICS
+        ================================================== -->
 
-        <main class="dashboard-container">
+        <section
+            id="statistics-section"
+            class="dashboard-card hidden"
+        >
 
+            <div class="card-heading">
 
-            <!-- WELCOME -->
-
-            <section class="welcome-card">
+                <div class="card-icon">
+                    📊
+                </div>
 
                 <div>
 
-                    <p class="small-label">
-                        TEACHER DASHBOARD
-                    </p>
-
-                    <h2>
-                        Welcome,
-                        <span id="teacher-welcome-name">
-                            Teacher
-                        </span>
-                    </h2>
+                    <h2>Live Class Statistics</h2>
 
                     <p>
-                        Create classes and monitor classroom
-                        engagement in real time.
+                        Student responses will appear here.
                     </p>
 
                 </div>
 
-            </section>
+            </div>
 
 
-            <!-- CREATE CLASS -->
+            <div class="stats-grid">
 
-            <section class="dashboard-card">
+                <div class="stat-card">
 
-                <div class="card-header">
+                    <span>👥</span>
 
-                    <div>
+                    <h3 id="total-students">
+                        0
+                    </h3>
 
-                        <p class="small-label">
-                            CLASSROOM MANAGEMENT
-                        </p>
-
-                        <h3>
-                            Create New Class
-                        </h3>
-
-                    </div>
+                    <p>Responses</p>
 
                 </div>
 
 
-                <div class="create-class-grid">
+                <div class="stat-card">
 
-                    <div class="form-group">
+                    <span>😊</span>
 
-                        <label for="new-class-name">
-                            Class Name
-                        </label>
+                    <h3 id="understand-count">
+                        0
+                    </h3>
 
-                        <input
-                            type="text"
-                            id="new-class-name"
-                            placeholder="Example: Class 10 - A"
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="new-class-subject">
-                            Subject
-                        </label>
-
-                        <input
-                            type="text"
-                            id="new-class-subject"
-                            placeholder="Example: Mathematics"
-                        >
-
-                    </div>
+                    <p>Understand</p>
 
                 </div>
 
 
-                <button
-                    type="button"
-                    class="primary-btn"
-                    id="create-class-btn">
-                    Create Class
-                </button>
+                <div class="stat-card">
+
+                    <span>🤔</span>
+
+                    <h3 id="somewhat-count">
+                        0
+                    </h3>
+
+                    <p>Somewhat</p>
+
+                </div>
 
 
-                <div
-                    id="created-class-info"
-                    class="created-class hidden">
+                <div class="stat-card">
+
+                    <span>😕</span>
+
+                    <h3 id="dont-understand-count">
+                        0
+                    </h3>
+
+                    <p>Need Help</p>
+
+                </div>
+
+            </div>
+
+
+            <div class="cri-box">
+
+                <div>
 
                     <span>
-                        Class Created Successfully
+                        Classroom Resonance Index
                     </span>
 
-                    <strong id="created-class-code">
-                        ------
+                    <strong id="cri-value">
+                        0%
                     </strong>
 
-                    <p>
-                        Share this code with your students.
-                    </p>
-
                 </div>
 
-
-                <p
-                    id="create-class-message"
-                    class="message">
+                <p id="class-status">
+                    Waiting for responses
                 </p>
 
-            </section>
+            </div>
 
+        </section>
 
-            <!-- CLASS SELECTOR -->
-
-            <section class="dashboard-card">
-
-                <div class="card-header">
-
-                    <div>
-
-                        <p class="small-label">
-                            YOUR CLASSROOMS
-                        </p>
-
-                        <h3>
-                            Select Class
-                        </h3>
-
-                    </div>
-
-                </div>
-
-
-                <div
-                    id="teacher-class-list"
-                    class="class-list">
-
-                    <p class="empty-state">
-                        No classes created yet.
-                    </p>
-
-                </div>
-
-            </section>
-
-
-            <!-- STATS -->
-
-            <section
-                id="teacher-stats-section"
-                class="hidden">
-
-
-                <div class="stats-grid">
-
-
-                    <!-- TOTAL STUDENTS -->
-
-                    <div class="stat-card stat-primary">
-
-                        <span class="stat-label">
-                            Total Students
-                        </span>
-
-                        <strong
-                            id="total-students">
-                            0
-                        </strong>
-
-                        <p>
-                            Students participated
-                        </p>
-
-                    </div>
-
-
-                    <!-- HIGHLY ENGAGED -->
-
-                    <div class="stat-card">
-
-                        <span class="stat-label">
-                            Highly Engaged
-                        </span>
-
-                        <strong
-                            id="highly-engaged">
-                            0
-                        </strong>
-
-                        <p>
-                            High engagement
-                        </p>
-
-                    </div>
-
-
-                    <!-- NEEDS ATTENTION -->
-
-                    <div class="stat-card">
-
-                        <span class="stat-label">
-                            Needs Attention
-                        </span>
-
-                        <strong
-                            id="needs-attention">
-                            0
-                        </strong>
-
-                        <p>
-                            May need support
-                        </p>
-
-                    </div>
-
-
-                    <!-- AVERAGE -->
-
-                    <div class="stat-card">
-
-                        <span class="stat-label">
-                            Avg Engagement
-                        </span>
-
-                        <strong
-                            id="avg-engagement">
-                            0%
-                        </strong>
-
-                        <p>
-                            Overall classroom score
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- ENGAGEMENT -->
-
-                <section class="dashboard-card">
-
-                    <div class="card-header">
-
-                        <div>
-
-                            <p class="small-label">
-                                CLASS ENGAGEMENT
-                            </p>
-
-                            <h3>
-                                Engagement Overview
-                            </h3>
-
-                        </div>
-
-
-                        <strong
-                            id="class-engagement-percentage">
-                            0%
-                        </strong>
-
-                    </div>
-
-
-                    <div class="engagement-progress">
-
-                        <div
-                            id="engagement-progress-bar"
-                            class="engagement-progress-fill">
-                        </div>
-
-                    </div>
-
-
-                    <div class="engagement-distribution">
-
-
-                        <div class="distribution-item">
-
-                            <span>
-                                High
-                            </span>
-
-                            <strong
-                                id="high-percentage">
-                                0%
-                            </strong>
-
-                        </div>
-
-
-                        <div class="distribution-item">
-
-                            <span>
-                                Medium
-                            </span>
-
-                            <strong
-                                id="medium-percentage">
-                                0%
-                            </strong>
-
-                        </div>
-
-
-                        <div class="distribution-item">
-
-                            <span>
-                                Low
-                            </span>
-
-                            <strong
-                                id="low-percentage">
-                                0%
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <!-- CLASS PULSE -->
-
-                <section class="dashboard-card">
-
-                    <div class="card-header">
-
-                        <div>
-
-                            <p class="small-label">
-                                CLASSROOM PULSE
-                            </p>
-
-                            <h3>
-                                Student Understanding
-                            </h3>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="pulse-stats">
-
-
-                        <div class="pulse-stat stat-primary">
-
-                            <span>
-                                Understand
-                            </span>
-
-                            <strong
-                                id="pulse-understand">
-                                0
-                            </strong>
-
-                        </div>
-
-
-                        <div class="pulse-stat">
-
-                            <span>
-                                Somewhat
-                            </span>
-
-                            <strong
-                                id="pulse-somewhat">
-                                0
-                            </strong>
-
-                        </div>
-
-
-                        <div class="pulse-stat">
-
-                            <span>
-                                Need Help
-                            </span>
-
-                            <strong
-                                id="pulse-dont-understand">
-                                0
-                            </strong>
-
-                        </div>
-
-
-                        <div class="pulse-stat">
-
-                            <span>
-                                Average Rating
-                            </span>
-
-                            <strong
-                                id="pulse-average-rating">
-                                0
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="pulse-summary">
-
-                        <span>
-                            Classroom Resonance Index
-                        </span>
-
-                        <strong id="class-cri">
-                            0
-                        </strong>
-
-                    </div>
-
-
-                    <p
-                        id="class-status"
-                        class="class-status">
-                        Waiting for student responses.
-                    </p>
-
-                </section>
-
-
-                <!-- AI INSIGHT -->
-
-                <section class="dashboard-card ai-dashboard-card">
-
-                    <div class="card-header">
-
-                        <div>
-
-                            <p class="small-label">
-                                AI INSIGHT
-                            </p>
-
-                            <h3>
-                                Classroom Recommendation
-                            </h3>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="ai-insight-box">
-
-                        <h4>
-                            Engagement Insight
-                        </h4>
-
-                        <p id="teacher-ai-insight">
-                            Waiting for classroom data...
-                        </p>
-
-                    </div>
-
-
-                    <div class="recommendation-box">
-
-                        <h4>
-                            Recommended Action
-                        </h4>
-
-                        <p id="teacher-recommendation">
-                            Student responses will generate
-                            recommendations here.
-                        </p>
-
-                    </div>
-
-                </section>
-
-
-            </section>
-
-        </main>
-
-    </section>
-
+    </main>
 
     <script src="/socket.io/socket.io.js"></script>
-<script src="/script.js"></script>
+    
+    <!-- =====================================================
+         SCRIPT
+    ====================================================== -->
+
+    <script>
+
+        let currentClassCode = "";
+
+
+        // ==================================================
+        // CREATE CLASS
+        // ==================================================
+
+        document
+            .getElementById("create-class-form")
+            .addEventListener("submit", async function(event) {
+
+                event.preventDefault();
+
+
+                const topic =
+                    document.getElementById("topic").value.trim();
+
+                const quizQuestion =
+                    document
+                        .getElementById("quizQuestion")
+                        .value.trim();
+
+
+                const quizOptions = [
+
+                    document
+                        .getElementById("option0")
+                        .value.trim(),
+
+                    document
+                        .getElementById("option1")
+                        .value.trim(),
+
+                    document
+                        .getElementById("option2")
+                        .value.trim(),
+
+                    document
+                        .getElementById("option3")
+                        .value.trim()
+
+                ];
+
+
+                const correctAnswer =
+                    document
+                        .getElementById("correctAnswer")
+                        .value;
+
+
+                if (!topic ||
+                    !quizQuestion ||
+                    quizOptions.some(option => !option) ||
+                    correctAnswer === ""
+                ) {
+
+                    alert("Please fill all fields.");
+
+                    return;
+
+                }
+
+
+                try {
+
+                    const response =
+                        await fetch("/api/classrooms", {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                topic,
+
+                                quizQuestion,
+
+                                quizOptions,
+
+                                correctAnswer:
+                                    Number(correctAnswer)
+
+                            })
+
+                        });
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (!response.ok) {
+
+                        alert(
+                            data.message ||
+                            "Could not create class."
+                        );
+
+                        return;
+
+                    }
+
+
+                    currentClassCode =
+                        data.code;
+
+
+                    document
+                        .getElementById("generated-code")
+                        .textContent =
+                        currentClassCode;
+
+
+                    document
+                        .getElementById("class-created")
+                        .classList
+                        .remove("hidden");
+
+
+                    document
+                        .getElementById("statistics-section")
+                        .classList
+                        .remove("hidden");
+
+
+                    // Start loading statistics
+
+                    loadStats();
+
+
+                    // Join Socket.IO room
+
+                    if (typeof io !== "undefined") {
+
+                        const socket =
+                            io();
+
+                        socket.emit(
+                            "join-class",
+                            currentClassCode
+                        );
+
+
+                        socket.on(
+                            "stats:update",
+                            function(stats) {
+
+                                updateStats(stats);
+
+                            }
+                        );
+
+                    }
+
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    alert(
+                        "Unable to connect to server."
+                    );
+
+                }
+
+            });
+
+
+        // ==================================================
+        // LOAD STATISTICS
+        // ==================================================
+
+        async function loadStats() {
+
+            if (!currentClassCode) return;
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/stats/${currentClassCode}`
+                    );
+
+
+                const stats =
+                    await response.json();
+
+
+                if (response.ok) {
+
+                    updateStats(stats);
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Stats error:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        // ==================================================
+        // UPDATE STATISTICS
+        // ==================================================
+
+        function updateStats(stats) {
+
+            document
+                .getElementById("total-students")
+                .textContent =
+                stats.total;
+
+
+            document
+                .getElementById("understand-count")
+                .textContent =
+                stats.understand;
+
+
+            document
+                .getElementById("somewhat-count")
+                .textContent =
+                stats.somewhat;
+
+
+            document
+                .getElementById("dont-understand-count")
+                .textContent =
+                stats.dontUnderstand;
+
+
+            document
+                .getElementById("cri-value")
+                .textContent =
+                stats.cri + "%";
+
+
+            document
+                .getElementById("class-status")
+                .textContent =
+                stats.status;
+
+        }
+
+
+        // ==================================================
+        // COPY CLASS CODE
+        // ==================================================
+
+        function copyClassCode() {
+
+            if (!currentClassCode) return;
+
+
+            navigator
+                .clipboard
+                .writeText(currentClassCode)
+                .then(function() {
+
+                    alert(
+                        "Class code copied!"
+                    );
+
+                });
+
+        }
+
+
+        // ==================================================
+        // LOGOUT
+        // ==================================================
+
+        function logout() {
+
+            window.location.href = "/";
+
+        }
+
+    </script>
 
 </body>
 

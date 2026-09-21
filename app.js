@@ -49,20 +49,6 @@ app.use("/api/gemini", geminiRoutes);
 app.use("/api/auth", authRoutes);
 
 // ============================================================
-// MONGODB CONNECTION
-// ============================================================
-
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("MongoDB connected");
-  })
-  .catch((err) => {
-    console.log("MongoDB error:", err.message);
-  });
-
-
-// ============================================================
 // CLASSROOM SCHEMA
 // ============================================================
 
@@ -634,13 +620,50 @@ io.on("connection", (socket) => {
 
 
 // ============================================================
-// START SERVER
+// MONGODB CONNECTION + START SERVER
 // ============================================================
 
-server.listen(PORT, () => {
+async function startServer() {
 
-  console.log(
-    `Server running at http://localhost:${PORT}`
-  );
+  try {
 
-});
+    if (!process.env.MONGO_URI) {
+
+      throw new Error(
+        "MONGO_URI is missing from .env file"
+      );
+
+    }
+
+    await mongoose.connect(
+      process.env.MONGO_URI
+    );
+
+    console.log("----------------------------------");
+    console.log("MongoDB connected successfully");
+    console.log("Database: classplus");
+    console.log("----------------------------------");
+
+
+    server.listen(PORT, () => {
+
+      console.log(
+        `Server running at http://localhost:${PORT}`
+      );
+
+    });
+
+  } catch (error) {
+
+    console.error("----------------------------------");
+    console.error("MongoDB connection failed");
+    console.error(error.message);
+    console.error("----------------------------------");
+
+    process.exit(1);
+
+  }
+
+}
+
+startServer();
