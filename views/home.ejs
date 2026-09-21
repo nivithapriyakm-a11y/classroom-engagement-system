@@ -3,240 +3,488 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>ClassPulse - AI Student Engagement System</title>
-    <link rel="stylesheet" href="/css/style.css">
+
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
 
-    <!-- ================= LOGIN PAGE ================= -->
-    <section id="login-page" class="page active">
+    <!-- =====================================================
+         TOP NAVIGATION
+    ====================================================== -->
+
+    <header class="top-navbar">
+
+        <div class="navbar-logo">
+            <span class="logo-icon">📊</span>
+            <span>ClassPulse</span>
+        </div>
+
+        <nav class="navbar-menu">
+
+            <a href="#home">Home</a>
+
+            <a href="#how-it-works">
+                How It Works
+            </a>
+
+            <a href="#student">
+                Student
+            </a>
+
+            <a href="#teacher">
+                Teacher
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- =====================================================
+         LOGIN PAGE
+    ====================================================== -->
+
+    <main id="home" class="login-page">
 
         <div class="auth-container">
 
-            <div class="brand-section">
-                <h1>ClassPulse</h1>
-                <p>AI Student Engagement System</p>
-                <span>Connect. Understand. Improve.</span>
-            </div>
 
-            <div class="auth-card">
+            <!-- =================================================
+                 LEFT PURPLE BRAND SECTION
+            ================================================== -->
 
-                <div class="auth-tabs">
-                    <button class="auth-tab active" id="login-tab">
-                        Login
-                    </button>
+            <section class="brand-section">
 
-                    <button class="auth-tab" id="register-tab">
-                        Create Account
-                    </button>
-                </div>
+                <div class="brand-content">
 
-                <!-- LOGIN -->
-                <div id="login-form">
+                    <h1>
+                        ClassPulse
+                    </h1>
 
-                    <h2>Welcome Back</h2>
-                    <p class="form-description">
-                        Login to continue to ClassPulse
+                    <h2>
+                        Know Their Presence.<br>
+                        Measure Their Engagement.
+                    </h2>
+
+                    <p class="brand-description">
+                        Turn classroom participation into meaningful
+                        insights with AI-powered engagement analysis.
                     </p>
 
-                    <div class="form-group">
-                        <label for="login-email">Email</label>
-                        <input
-                            type="email"
-                            id="login-email"
-                            placeholder="Enter your email"
-                        >
-                    </div>
 
-                    <div class="form-group">
-                        <label for="login-password">Password</label>
-                        <input
-                            type="password"
-                            id="login-password"
-                            placeholder="Enter your password"
-                        >
-                    </div>
+                    <!-- EMOJIS -->
+                    <div class="brand-emojis">
 
-                    <div class="role-selection">
+                        <span>🧑‍🏫</span>
 
-                        <p>Select Role</p>
+                        <span>🤖</span>
 
-                        <div class="role-buttons">
+                        <span>📚</span>
 
-                            <button
-                                type="button"
-                                class="role-btn active"
-                                data-role="student"
-                                id="login-student-role">
-                                Student
-                            </button>
-
-                            <button
-                                type="button"
-                                class="role-btn"
-                                data-role="teacher"
-                                id="login-teacher-role">
-                                Teacher
-                            </button>
-
-                        </div>
+                        <span>✨</span>
 
                     </div>
-
-                    <button
-                        type="button"
-                        class="primary-btn"
-                        id="login-btn">
-                        Login
-                    </button>
-
-                    <p id="login-message" class="message"></p>
 
                 </div>
 
+            </section>
 
-                <!-- REGISTER -->
-                <div id="register-form" class="hidden">
 
-                    <h2>Create Account</h2>
+            <!-- =================================================
+                 RIGHT LOGIN SECTION
+            ================================================== -->
 
-                    <p class="form-description">
-                        Create your ClassPulse account
-                    </p>
+            <section class="auth-section">
 
-                    <div class="form-group">
-                        <label for="register-name">Full Name</label>
-                        <input
-                            type="text"
-                            id="register-name"
-                            placeholder="Enter your full name"
-                        >
+                <div class="auth-card">
+
+
+                    <!-- LOGIN / CREATE ACCOUNT TABS -->
+
+                    <div class="auth-tabs">
+
+                        <button
+                            type="button"
+                            class="auth-tab active"
+                            id="login-tab"
+                            onclick="showLogin()">
+
+                            LOGIN
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="auth-tab"
+                            id="register-tab"
+                            onclick="showRegister()">
+
+                            CREATE ACCOUNT
+
+                        </button>
+
                     </div>
 
-                    <div class="form-group">
-                        <label for="register-email">Email</label>
-                        <input
-                            type="email"
-                            id="register-email"
-                            placeholder="Enter your email"
-                        >
-                    </div>
 
-                    <div class="form-group">
-                        <label for="register-password">Password</label>
-                        <input
-                            type="password"
-                            id="register-password"
-                            placeholder="Create a password"
-                        >
-                    </div>
+                    <!-- =================================================
+                         LOGIN FORM
+                    ================================================== -->
 
-                    <div class="form-group">
-                        <label for="register-confirm-password">
-                            Confirm Password
-                        </label>
+                    <div id="login-form-container">
 
-                        <input
-                            type="password"
-                            id="register-confirm-password"
-                            placeholder="Confirm your password"
-                        >
-                    </div>
+                        <h2>
+                            Welcome Back
+                        </h2>
 
-                    <div class="role-selection">
+                        <p class="form-description">
+                            Login to continue to ClassPulse
+                        </p>
 
-                        <p>Select Role</p>
 
-                        <div class="role-buttons">
+                        <form id="login-form">
+
+
+                            <!-- EMAIL -->
+
+                            <div class="form-group">
+
+                                <label for="login-email">
+                                    Email
+                                </label>
+
+                                <input
+                                    type="email"
+                                    id="login-email"
+                                    name="email"
+                                    placeholder="Enter your email"
+                                    required>
+
+                            </div>
+
+
+                            <!-- PASSWORD -->
+
+                            <div class="form-group">
+
+                                <label for="login-password">
+                                    Password
+                                </label>
+
+                                <input
+                                    type="password"
+                                    id="login-password"
+                                    name="password"
+                                    placeholder="Enter your password"
+                                    required>
+
+                            </div>
+
+
+                            <!-- ROLE -->
+
+                            <div class="role-selection">
+
+                                <p>
+                                    Role
+                                </p>
+
+                                <div class="role-buttons">
+
+                                    <button
+                                        type="button"
+                                        class="role-btn active"
+                                        id="student-role"
+                                        onclick="selectRole('student')">
+
+                                        Student
+
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        class="role-btn"
+                                        id="teacher-role"
+                                        onclick="selectRole('teacher')">
+
+                                        Teacher
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+
+                            <input
+                                type="hidden"
+                                id="login-role"
+                                name="role"
+                                value="student">
+
+
+                            <!-- LOGIN BUTTON -->
 
                             <button
-                                type="button"
-                                class="role-btn active"
-                                data-role="student"
-                                id="register-student-role">
-                                Student
+                                type="submit"
+                                class="primary-btn">
+
+                                Login
+
                             </button>
 
-                            <button
-                                type="button"
-                                class="role-btn"
-                                data-role="teacher"
-                                id="register-teacher-role">
-                                Teacher
-                            </button>
 
-                        </div>
+                            <p
+                                id="login-message"
+                                class="message">
+                            </p>
+
+                        </form>
 
                     </div>
 
-                    <button
-                        type="button"
-                        class="primary-btn"
-                        id="register-btn">
-                        Create Account
-                    </button>
 
-                    <p id="register-message" class="message"></p>
+                    <!-- =================================================
+                         REGISTER FORM
+                    ================================================== -->
+
+                    <div
+                        id="register-form-container"
+                        class="hidden">
+
+                        <h2>
+                            Create Account
+                        </h2>
+
+                        <p class="form-description">
+                            Join ClassPulse today
+                        </p>
+
+
+                        <form id="register-form">
+
+
+                            <!-- NAME -->
+
+                            <div class="form-group">
+
+                                <label for="register-name">
+                                    Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="register-name"
+                                    name="name"
+                                    placeholder="Enter your name"
+                                    required>
+
+                            </div>
+
+
+                            <!-- EMAIL -->
+
+                            <div class="form-group">
+
+                                <label for="register-email">
+                                    Email
+                                </label>
+
+                                <input
+                                    type="email"
+                                    id="register-email"
+                                    name="email"
+                                    placeholder="Enter your email"
+                                    required>
+
+                            </div>
+
+
+                            <!-- PASSWORD -->
+
+                            <div class="form-group">
+
+                                <label for="register-password">
+                                    Password
+                                </label>
+
+                                <input
+                                    type="password"
+                                    id="register-password"
+                                    name="password"
+                                    placeholder="Create a password"
+                                    required>
+
+                            </div>
+
+
+                            <!-- ROLE -->
+
+                            <div class="role-selection">
+
+                                <p>
+                                    Role
+                                </p>
+
+                                <div class="role-buttons">
+
+                                    <button
+                                        type="button"
+                                        class="role-btn active"
+                                        id="register-student-role"
+                                        onclick="selectRegisterRole('student')">
+
+                                        Student
+
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        class="role-btn"
+                                        id="register-teacher-role"
+                                        onclick="selectRegisterRole('teacher')">
+
+                                        Teacher
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+
+                            <input
+                                type="hidden"
+                                id="register-role"
+                                name="role"
+                                value="student">
+
+
+                            <button
+                                type="submit"
+                                class="primary-btn">
+
+                                Create Account
+
+                            </button>
+
+
+                            <p
+                                id="register-message"
+                                class="message">
+                            </p>
+
+                        </form>
+
+                    </div>
 
                 </div>
 
-            </div>
+            </section>
 
         </div>
 
-    </section>
+    </main>
 
 
-    <!-- ================= HOW IT WORKS ================= -->
+    <!-- =====================================================
+         HOW IT WORKS
+    ====================================================== -->
 
-    <section class="how-it-works">
+    <section
+        id="how-it-works"
+        class="how-it-works">
 
         <div class="section-container">
 
-            <h2>How ClassPulse Works</h2>
+            <h2>
+                How ClassPulse Works
+            </h2>
 
             <p class="section-description">
-                A simple system that connects students and teachers
-                through real-time classroom engagement.
+                ClassPulse helps teachers understand classroom
+                participation and student engagement using
+                AI-powered insights.
             </p>
+
 
             <div class="steps-container">
 
-                <div class="step-card">
-                    <div class="step-number">01</div>
-                    <h3>Create or Join</h3>
-                    <p>
-                        Teachers create a classroom and students
-                        join using a class code.
-                    </p>
-                </div>
 
                 <div class="step-card">
-                    <div class="step-number">02</div>
-                    <h3>Take Quiz</h3>
+
+                    <div class="step-number">
+                        01
+                    </div>
+
+                    <h3>
+                        Create a Class
+                    </h3>
+
                     <p>
-                        Students answer questions related to the
-                        classroom topic.
+                        Teachers can create classrooms and
+                        invite students to join.
                     </p>
+
                 </div>
 
-                <div class="step-card">
-                    <div class="step-number">03</div>
-                    <h3>Share Pulse</h3>
-                    <p>
-                        Students share their understanding of the
-                        topic through a quick classroom pulse.
-                    </p>
-                </div>
 
                 <div class="step-card">
-                    <div class="step-number">04</div>
-                    <h3>Get Insights</h3>
+
+                    <div class="step-number">
+                        02
+                    </div>
+
+                    <h3>
+                        Students Participate
+                    </h3>
+
                     <p>
-                        Teachers receive real-time classroom
-                        engagement insights.
+                        Students interact with classroom
+                        activities and quizzes.
                     </p>
+
+                </div>
+
+
+                <div class="step-card">
+
+                    <div class="step-number">
+                        03
+                    </div>
+
+                    <h3>
+                        Track Engagement
+                    </h3>
+
+                    <p>
+                        ClassPulse collects participation
+                        and engagement information.
+                    </p>
+
+                </div>
+
+
+                <div class="step-card">
+
+                    <div class="step-number">
+                        04
+                    </div>
+
+                    <h3>
+                        Get Insights
+                    </h3>
+
+                    <p>
+                        AI-powered insights help teachers
+                        understand their classroom better.
+                    </p>
+
                 </div>
 
             </div>
@@ -245,8 +493,12 @@
 
     </section>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/js/script.js"></script>
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script src="/script.js"></script>
 
 </body>
 </html>
