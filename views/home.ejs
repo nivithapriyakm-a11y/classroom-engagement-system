@@ -1,23 +1,252 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>ClassPulse</title>
-  <link rel="stylesheet" href="/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClassPulse - AI Student Engagement System</title>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
-  <div class="container hero">
-    <h1>ClassPulse</h1>
-    <p>Real-time classroom comprehension feedback</p>
-    <div class="cards">
-      <a class="card" href="/teacher">
-        <h2>👩‍🏫 Teacher</h2>
-        <p>Create a class and watch live understanding.</p>
-      </a>
-      <a class="card" href="/student">
-        <h2>🎓 Student</h2>
-        <p>Join a class and submit anonymous feedback.</p>
-      </a>
-    </div>
-  </div>
+
+    <!-- ================= LOGIN PAGE ================= -->
+    <section id="login-page" class="page active">
+
+        <div class="auth-container">
+
+            <div class="brand-section">
+                <h1>ClassPulse</h1>
+                <p>AI Student Engagement System</p>
+                <span>Connect. Understand. Improve.</span>
+            </div>
+
+            <div class="auth-card">
+
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="login-tab">
+                        Login
+                    </button>
+
+                    <button class="auth-tab" id="register-tab">
+                        Create Account
+                    </button>
+                </div>
+
+                <!-- LOGIN -->
+                <div id="login-form">
+
+                    <h2>Welcome Back</h2>
+                    <p class="form-description">
+                        Login to continue to ClassPulse
+                    </p>
+
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input
+                            type="email"
+                            id="login-email"
+                            placeholder="Enter your email"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input
+                            type="password"
+                            id="login-password"
+                            placeholder="Enter your password"
+                        >
+                    </div>
+
+                    <div class="role-selection">
+
+                        <p>Select Role</p>
+
+                        <div class="role-buttons">
+
+                            <button
+                                type="button"
+                                class="role-btn active"
+                                data-role="student"
+                                id="login-student-role">
+                                Student
+                            </button>
+
+                            <button
+                                type="button"
+                                class="role-btn"
+                                data-role="teacher"
+                                id="login-teacher-role">
+                                Teacher
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        id="login-btn">
+                        Login
+                    </button>
+
+                    <p id="login-message" class="message"></p>
+
+                </div>
+
+
+                <!-- REGISTER -->
+                <div id="register-form" class="hidden">
+
+                    <h2>Create Account</h2>
+
+                    <p class="form-description">
+                        Create your ClassPulse account
+                    </p>
+
+                    <div class="form-group">
+                        <label for="register-name">Full Name</label>
+                        <input
+                            type="text"
+                            id="register-name"
+                            placeholder="Enter your full name"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input
+                            type="email"
+                            id="register-email"
+                            placeholder="Enter your email"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input
+                            type="password"
+                            id="register-password"
+                            placeholder="Create a password"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="register-confirm-password">
+                            Confirm Password
+                        </label>
+
+                        <input
+                            type="password"
+                            id="register-confirm-password"
+                            placeholder="Confirm your password"
+                        >
+                    </div>
+
+                    <div class="role-selection">
+
+                        <p>Select Role</p>
+
+                        <div class="role-buttons">
+
+                            <button
+                                type="button"
+                                class="role-btn active"
+                                data-role="student"
+                                id="register-student-role">
+                                Student
+                            </button>
+
+                            <button
+                                type="button"
+                                class="role-btn"
+                                data-role="teacher"
+                                id="register-teacher-role">
+                                Teacher
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        id="register-btn">
+                        Create Account
+                    </button>
+
+                    <p id="register-message" class="message"></p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= HOW IT WORKS ================= -->
+
+    <section class="how-it-works">
+
+        <div class="section-container">
+
+            <h2>How ClassPulse Works</h2>
+
+            <p class="section-description">
+                A simple system that connects students and teachers
+                through real-time classroom engagement.
+            </p>
+
+            <div class="steps-container">
+
+                <div class="step-card">
+                    <div class="step-number">01</div>
+                    <h3>Create or Join</h3>
+                    <p>
+                        Teachers create a classroom and students
+                        join using a class code.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">02</div>
+                    <h3>Take Quiz</h3>
+                    <p>
+                        Students answer questions related to the
+                        classroom topic.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">03</div>
+                    <h3>Share Pulse</h3>
+                    <p>
+                        Students share their understanding of the
+                        topic through a quick classroom pulse.
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-number">04</div>
+                    <h3>Get Insights</h3>
+                    <p>
+                        Teachers receive real-time classroom
+                        engagement insights.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <script src="/js/script.js"></script>
+
 </body>
 </html>

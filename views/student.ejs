@@ -1,117 +1,526 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <title>Student - ClassPulse</title>
-  <link rel="stylesheet" href="/css/style.css">
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ClassPulse - Student</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
 </head>
+
+
 <body>
-<div class="container">
-  <a href="/">← Home</a>
-  <h1>Student Feedback</h1>
 
-  <div id="joinBox" class="panel">
-    <h2>Join Class</h2>
-    <input id="code" placeholder="Enter class code" maxlength="6">
-    <button id="joinBtn">Join</button>
-    <p id="joinError" class="error"></p>
-  </div>
+    <!-- ================= STUDENT PAGE ================= -->
 
-  <div id="feedbackBox" class="panel hidden">
-    <h2 id="topic"></h2>
-    <p>How well did you understand this topic?</p>
+    <section id="student-page" class="page active">
 
-    <div class="understanding">
-      <button data-level="understand">🟢<br>Understand</button>
-      <button data-level="somewhat">🟡<br>Somewhat</button>
-      <button data-level="dont-understand">🔴<br>Don't understand</button>
-    </div>
+        <!-- HEADER -->
 
-    <h3 id="question"></h3>
-    <div id="options"></div>
+        <header class="dashboard-header">
 
-    <button id="submitBtn" disabled>Submit Anonymous Response</button>
-    <p id="result"></p>
-  </div>
-</div>
+            <div class="brand">
+                <h1>ClassPulse</h1>
+                <span>Student Dashboard</span>
+            </div>
 
-<script>
-let classCode = "";
-let understanding = "";
-let selectedAnswer = null;
+            <div class="header-actions">
 
-document.getElementById("joinBtn").addEventListener("click", async () => {
-  const code = document.getElementById("code").value.trim().toUpperCase();
+                <span id="student-name-display">
+                    Student
+                </span>
 
-  if (!code) return;
+                <button
+                    type="button"
+                    class="logout-btn"
+                    id="student-logout-btn">
+                    Logout
+                </button>
 
-  const response = await fetch("/api/classrooms/" + code);
-  const data = await response.json();
+            </div>
 
-  if (!response.ok) {
-    document.getElementById("joinError").textContent = data.message;
-    return;
-  }
+        </header>
 
-  classCode = data.code;
-  document.getElementById("joinBox").classList.add("hidden");
-  document.getElementById("feedbackBox").classList.remove("hidden");
-  document.getElementById("topic").textContent = "Topic: " + data.topic;
-  document.getElementById("question").textContent = data.quizQuestion;
 
-  const options = document.getElementById("options");
-  options.innerHTML = "";
+        <!-- MAIN CONTENT -->
 
-  data.quizOptions.forEach((option, index) => {
-    const button = document.createElement("button");
-    button.className = "quiz-option";
-    button.textContent = option;
-    button.onclick = () => {
-      selectedAnswer = index;
-      document.querySelectorAll(".quiz-option").forEach(x => x.classList.remove("selected"));
-      button.classList.add("selected");
-      checkSubmit();
-    };
-    options.appendChild(button);
-  });
-});
+        <main class="dashboard-container">
 
-document.querySelectorAll(".understanding button").forEach(button => {
-  button.addEventListener("click", () => {
-    understanding = button.dataset.level;
-    document.querySelectorAll(".understanding button").forEach(x => x.classList.remove("selected"));
-    button.classList.add("selected");
-    checkSubmit();
-  });
-});
+            <!-- WELCOME -->
 
-function checkSubmit() {
-  document.getElementById("submitBtn").disabled =
-    !understanding || selectedAnswer === null;
-}
+            <section class="welcome-card">
 
-document.getElementById("submitBtn").addEventListener("click", async () => {
-  const response = await fetch("/api/responses", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      classCode,
-      understanding,
-      quizAnswer: selectedAnswer
-    })
-  });
+                <div>
 
-  const data = await response.json();
+                    <p class="small-label">
+                        STUDENT DASHBOARD
+                    </p>
 
-  if (!response.ok) {
-    alert(data.message);
-    return;
-  }
+                    <h2>
+                        Welcome,
+                        <span id="student-welcome-name">
+                            Student
+                        </span>
+                    </h2>
 
-  document.getElementById("result").textContent =
-    "✅ Response submitted anonymously. Thank you!";
+                    <p>
+                        Join your classroom and participate
+                        in today's learning activity.
+                    </p>
 
-  document.getElementById("submitBtn").disabled = true;
-});
-</script>
+                </div>
+
+            </section>
+
+
+            <!-- JOIN CLASS -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <p class="small-label">
+                            CLASSROOM
+                        </p>
+
+                        <h3>Join a Class</h3>
+
+                    </div>
+
+                </div>
+
+
+                <div class="join-class-container">
+
+                    <div class="form-group">
+
+                        <label for="class-code-input">
+                            Class Code
+                        </label>
+
+                        <input
+                            type="text"
+                            id="class-code-input"
+                            placeholder="Enter class code"
+                            maxlength="6"
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        id="join-class-btn">
+                        Join Class
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="class-info"
+                    class="class-info hidden">
+
+                    <div>
+
+                        <span class="small-label">
+                            CLASS
+                        </span>
+
+                        <h3 id="student-class-name">
+                            -
+                        </h3>
+
+                    </div>
+
+                    <div>
+
+                        <span class="small-label">
+                            SUBJECT
+                        </span>
+
+                        <p id="student-class-topic">
+                            -
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <span class="small-label">
+                            CLASS CODE
+                        </span>
+
+                        <strong id="student-class-code">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <p
+                    id="join-class-message"
+                    class="message">
+                </p>
+
+            </section>
+
+
+            <!-- QUIZ -->
+
+            <section
+                id="student-quiz-section"
+                class="dashboard-card hidden">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <p class="small-label">
+                            QUICK CHECK
+                        </p>
+
+                        <h3>Knowledge Check</h3>
+
+                    </div>
+
+                    <span id="quiz-progress">
+                        1 / 1
+                    </span>
+
+                </div>
+
+
+                <div class="quiz-container">
+
+                    <div class="quiz-question">
+
+                        <span class="question-number">
+                            Question
+                        </span>
+
+                        <h3 id="quiz-question-text">
+                            Loading question...
+                        </h3>
+
+                    </div>
+
+
+                    <div
+                        id="quiz-options"
+                        class="quiz-options">
+
+                    </div>
+
+
+                    <div class="quiz-actions">
+
+                        <button
+                            type="button"
+                            class="primary-btn"
+                            id="quiz-submit-btn">
+                            Submit Answer
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <p
+                    id="quiz-message"
+                    class="message">
+                </p>
+
+            </section>
+
+
+            <!-- PULSE -->
+
+            <section
+                id="student-pulse-section"
+                class="dashboard-card hidden">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <p class="small-label">
+                            CLASSROOM PULSE
+                        </p>
+
+                        <h3>
+                            How well do you understand?
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pulse-options">
+
+                    <button
+                        type="button"
+                        class="pulse-option"
+                        data-understanding="understand">
+
+                        <strong>Understand</strong>
+
+                        <span>
+                            I understand the topic well.
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="pulse-option"
+                        data-understanding="somewhat">
+
+                        <strong>Somewhat</strong>
+
+                        <span>
+                            I understand some parts.
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="pulse-option"
+                        data-understanding="dont-understand">
+
+                        <strong>Need Help</strong>
+
+                        <span>
+                            I need more explanation.
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+                <div class="rating-section">
+
+                    <label>
+                        Rate today's class
+                    </label>
+
+                    <div
+                        id="class-rating"
+                        class="rating-buttons">
+
+                        <button
+                            type="button"
+                            data-rating="1">
+                            1
+                        </button>
+
+                        <button
+                            type="button"
+                            data-rating="2">
+                            2
+                        </button>
+
+                        <button
+                            type="button"
+                            data-rating="3">
+                            3
+                        </button>
+
+                        <button
+                            type="button"
+                            data-rating="4">
+                            4
+                        </button>
+
+                        <button
+                            type="button"
+                            data-rating="5">
+                            5
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="pulse-feedback">
+                        Optional Feedback
+                    </label>
+
+                    <textarea
+                        id="pulse-feedback"
+                        rows="4"
+                        placeholder="Share your feedback...">
+                    </textarea>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="primary-btn"
+                    id="submit-pulse-btn">
+                    Submit Pulse
+                </button>
+
+
+                <p
+                    id="pulse-message"
+                    class="message">
+                </p>
+
+            </section>
+
+
+            <!-- RESULT -->
+
+            <section
+                id="student-result-section"
+                class="dashboard-card hidden">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <p class="small-label">
+                            AI ENGAGEMENT ANALYSIS
+                        </p>
+
+                        <h3>Your Result</h3>
+
+                    </div>
+
+                </div>
+
+
+                <div class="result-summary">
+
+                    <div class="result-score">
+
+                        <span>
+                            Quiz Accuracy
+                        </span>
+
+                        <strong id="result-accuracy">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="result-level">
+
+                        <span>
+                            Engagement Level
+                        </span>
+
+                        <strong id="result-level">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="result-breakdown">
+
+                    <div class="result-item">
+
+                        <span>
+                            Quiz Performance
+                        </span>
+
+                        <strong id="result-quiz">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="result-item">
+
+                        <span>
+                            Participation
+                        </span>
+
+                        <strong id="result-participation">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="result-item">
+
+                        <span>
+                            Understanding
+                        </span>
+
+                        <strong id="result-understanding">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="ai-insight-box">
+
+                    <h4>
+                        AI Insight
+                    </h4>
+
+                    <p id="student-ai-insight">
+                        Your engagement insight will appear here.
+                    </p>
+
+                </div>
+
+
+                <div class="recommendation-box">
+
+                    <h4>
+                        Recommendation
+                    </h4>
+
+                    <p id="student-recommendation">
+                        Keep participating in classroom activities.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </section>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/script.js"></script>
+
 </body>
+
 </html>

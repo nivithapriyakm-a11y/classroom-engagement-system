@@ -1,130 +1,560 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <title>Teacher Dashboard - ClassPulse</title>
-  <link rel="stylesheet" href="/css/style.css">
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ClassPulse - Teacher Dashboard</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
 </head>
+
+
 <body>
-<div class="container">
-  <a href="/">← Home</a>
-  <h1>Teacher Dashboard</h1>
 
-  <div id="setup">
-    <div class="panel">
-      <h2>Create Class</h2>
-      <form id="createForm">
-        <label>Topic</label>
-        <input id="topic" value="DBMS Normalization" required>
+    <!-- ================= TEACHER PAGE ================= -->
 
-        <label>Mini Quiz Question</label>
-        <input id="quizQuestion" value="Which normal form removes partial dependency?" required>
+    <section id="teacher-page" class="page active">
 
-        <label>Option 1</label>
-        <input class="option" value="1NF" required>
 
-        <label>Option 2</label>
-        <input class="option" value="2NF" required>
+        <!-- HEADER -->
 
-        <label>Option 3</label>
-        <input class="option" value="3NF" required>
+        <header class="dashboard-header">
 
-        <label>Option 4</label>
-        <input class="option" value="BCNF" required>
+            <div class="brand">
 
-        <label>Correct option number</label>
-        <select id="correctAnswer">
-          <option value="0">1NF</option>
-          <option value="1" selected>2NF</option>
-          <option value="2">3NF</option>
-          <option value="3">BCNF</option>
-        </select>
+                <h1>ClassPulse</h1>
 
-        <button type="submit">Create Class</button>
-      </form>
-    </div>
-  </div>
+                <span>
+                    Teacher Dashboard
+                </span>
 
-  <div id="dashboard" class="hidden">
-    <div class="panel">
-      <h2>Class Code: <span id="classCode"></span></h2>
-      <p>Ask students to open the Student page and enter this code.</p>
-      <h3 id="topicTitle"></h3>
-    </div>
+            </div>
 
-    <div class="stats-grid">
-      <div class="stat"><span id="total">0</span><small>Responses</small></div>
-      <div class="stat"><span id="cri">0%</span><small>Classroom Resonance Index</small></div>
-      <div class="stat"><span id="quizAccuracy">0%</span><small>Quiz Accuracy</small></div>
-    </div>
 
-    <div class="panel">
-      <h2>Live Understanding</h2>
-      <div class="bars">
-        <div>🟢 Understand <b id="understand">0</b></div>
-        <div>🟡 Somewhat <b id="somewhat">0</b></div>
-        <div>🔴 Don't understand <b id="dontUnderstand">0</b></div>
-      </div>
-      <div class="message" id="status">Waiting for responses</div>
-    </div>
-  </div>
-</div>
+            <div class="header-actions">
 
-<script src="/socket.io/socket.io.js"></script>
-<script>
-const socket = io();
+                <span id="teacher-name-display">
+                    Teacher
+                </span>
 
-document.getElementById("createForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
+                <button
+                    type="button"
+                    class="logout-btn"
+                    id="teacher-logout-btn">
+                    Logout
+                </button>
 
-  const options = [...document.querySelectorAll(".option")].map(x => x.value);
+            </div>
 
-  const body = {
-    topic: document.getElementById("topic").value,
-    quizQuestion: document.getElementById("quizQuestion").value,
-    quizOptions: options,
-    correctAnswer: document.getElementById("correctAnswer").value
-  };
+        </header>
 
-  const response = await fetch("/api/classrooms", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
 
-  const data = await response.json();
+        <!-- MAIN -->
 
-  if (!response.ok) {
-    alert(data.message);
-    return;
-  }
+        <main class="dashboard-container">
 
-  document.getElementById("setup").classList.add("hidden");
-  document.getElementById("dashboard").classList.remove("hidden");
-  document.getElementById("classCode").textContent = data.code;
-  document.getElementById("topicTitle").textContent = "Topic: " + body.topic;
 
-  socket.emit("join-class", data.code);
+            <!-- WELCOME -->
 
-  loadStats(data.code);
-});
+            <section class="welcome-card">
 
-socket.on("stats:update", updateStats);
+                <div>
 
-async function loadStats(code) {
-  const response = await fetch("/api/stats/" + code);
-  const stats = await response.json();
-  updateStats(stats);
-}
+                    <p class="small-label">
+                        TEACHER DASHBOARD
+                    </p>
 
-function updateStats(stats) {
-  document.getElementById("total").textContent = stats.total;
-  document.getElementById("cri").textContent = stats.cri + "%";
-  document.getElementById("quizAccuracy").textContent = stats.quizAccuracy + "%";
-  document.getElementById("understand").textContent = stats.understand;
-  document.getElementById("somewhat").textContent = stats.somewhat;
-  document.getElementById("dontUnderstand").textContent = stats.dontUnderstand;
-  document.getElementById("status").textContent = stats.status;
-}
-</script>
+                    <h2>
+                        Welcome,
+                        <span id="teacher-welcome-name">
+                            Teacher
+                        </span>
+                    </h2>
+
+                    <p>
+                        Create classes and monitor classroom
+                        engagement in real time.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- CREATE CLASS -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <p class="small-label">
+                            CLASSROOM MANAGEMENT
+                        </p>
+
+                        <h3>
+                            Create New Class
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <div class="create-class-grid">
+
+                    <div class="form-group">
+
+                        <label for="new-class-name">
+                            Class Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="new-class-name"
+                            placeholder="Example: Class 10 - A"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="new-class-subject">
+                            Subject
+                        </label>
+
+                        <input
+                            type="text"
+                            id="new-class-subject"
+                            placeholder="Example: Mathematics"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="primary-btn"
+                    id="create-class-btn">
+                    Create Class
+                </button>
+
+
+                <div
+                    id="created-class-info"
+                    class="created-class hidden">
+
+                    <span>
+                        Class Created Successfully
+                    </span>
+
+                    <strong id="created-class-code">
+                        ------
+                    </strong>
+
+                    <p>
+                        Share this code with your students.
+                    </p>
+
+                </div>
+
+
+                <p
+                    id="create-class-message"
+                    class="message">
+                </p>
+
+            </section>
+
+
+            <!-- CLASS SELECTOR -->
+
+            <section class="dashboard-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <p class="small-label">
+                            YOUR CLASSROOMS
+                        </p>
+
+                        <h3>
+                            Select Class
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="teacher-class-list"
+                    class="class-list">
+
+                    <p class="empty-state">
+                        No classes created yet.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- STATS -->
+
+            <section
+                id="teacher-stats-section"
+                class="hidden">
+
+
+                <div class="stats-grid">
+
+
+                    <!-- TOTAL STUDENTS -->
+
+                    <div class="stat-card stat-primary">
+
+                        <span class="stat-label">
+                            Total Students
+                        </span>
+
+                        <strong
+                            id="total-students">
+                            0
+                        </strong>
+
+                        <p>
+                            Students participated
+                        </p>
+
+                    </div>
+
+
+                    <!-- HIGHLY ENGAGED -->
+
+                    <div class="stat-card">
+
+                        <span class="stat-label">
+                            Highly Engaged
+                        </span>
+
+                        <strong
+                            id="highly-engaged">
+                            0
+                        </strong>
+
+                        <p>
+                            High engagement
+                        </p>
+
+                    </div>
+
+
+                    <!-- NEEDS ATTENTION -->
+
+                    <div class="stat-card">
+
+                        <span class="stat-label">
+                            Needs Attention
+                        </span>
+
+                        <strong
+                            id="needs-attention">
+                            0
+                        </strong>
+
+                        <p>
+                            May need support
+                        </p>
+
+                    </div>
+
+
+                    <!-- AVERAGE -->
+
+                    <div class="stat-card">
+
+                        <span class="stat-label">
+                            Avg Engagement
+                        </span>
+
+                        <strong
+                            id="avg-engagement">
+                            0%
+                        </strong>
+
+                        <p>
+                            Overall classroom score
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ENGAGEMENT -->
+
+                <section class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <p class="small-label">
+                                CLASS ENGAGEMENT
+                            </p>
+
+                            <h3>
+                                Engagement Overview
+                            </h3>
+
+                        </div>
+
+
+                        <strong
+                            id="class-engagement-percentage">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="engagement-progress">
+
+                        <div
+                            id="engagement-progress-bar"
+                            class="engagement-progress-fill">
+                        </div>
+
+                    </div>
+
+
+                    <div class="engagement-distribution">
+
+
+                        <div class="distribution-item">
+
+                            <span>
+                                High
+                            </span>
+
+                            <strong
+                                id="high-percentage">
+                                0%
+                            </strong>
+
+                        </div>
+
+
+                        <div class="distribution-item">
+
+                            <span>
+                                Medium
+                            </span>
+
+                            <strong
+                                id="medium-percentage">
+                                0%
+                            </strong>
+
+                        </div>
+
+
+                        <div class="distribution-item">
+
+                            <span>
+                                Low
+                            </span>
+
+                            <strong
+                                id="low-percentage">
+                                0%
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- CLASS PULSE -->
+
+                <section class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <p class="small-label">
+                                CLASSROOM PULSE
+                            </p>
+
+                            <h3>
+                                Student Understanding
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pulse-stats">
+
+
+                        <div class="pulse-stat stat-primary">
+
+                            <span>
+                                Understand
+                            </span>
+
+                            <strong
+                                id="pulse-understand">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="pulse-stat">
+
+                            <span>
+                                Somewhat
+                            </span>
+
+                            <strong
+                                id="pulse-somewhat">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="pulse-stat">
+
+                            <span>
+                                Need Help
+                            </span>
+
+                            <strong
+                                id="pulse-dont-understand">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="pulse-stat">
+
+                            <span>
+                                Average Rating
+                            </span>
+
+                            <strong
+                                id="pulse-average-rating">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="pulse-summary">
+
+                        <span>
+                            Classroom Resonance Index
+                        </span>
+
+                        <strong id="class-cri">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <p
+                        id="class-status"
+                        class="class-status">
+                        Waiting for student responses.
+                    </p>
+
+                </section>
+
+
+                <!-- AI INSIGHT -->
+
+                <section class="dashboard-card ai-dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <p class="small-label">
+                                AI INSIGHT
+                            </p>
+
+                            <h3>
+                                Classroom Recommendation
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="ai-insight-box">
+
+                        <h4>
+                            Engagement Insight
+                        </h4>
+
+                        <p id="teacher-ai-insight">
+                            Waiting for classroom data...
+                        </p>
+
+                    </div>
+
+
+                    <div class="recommendation-box">
+
+                        <h4>
+                            Recommended Action
+                        </h4>
+
+                        <p id="teacher-recommendation">
+                            Student responses will generate
+                            recommendations here.
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+            </section>
+
+        </main>
+
+    </section>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/script.js"></script>
+
 </body>
+
 </html>
