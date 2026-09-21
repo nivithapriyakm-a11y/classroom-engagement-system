@@ -5,216 +5,641 @@ const path = require("path");
 const http = require("http");
 const { Server } = require("socket.io");
 
-
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-const geminiRoutes = require("./routes/gemini");
 
+const geminiRoutes = require("./routes/gemini");
 
 const PORT = process.env.PORT || 3000;
 
+
+// ============================================================
+// MIDDLEWARE
+// ============================================================
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
-app.use("/api/gemini", geminiRoutes);
+
+
+// ============================================================
+// EJS SETUP
+// ============================================================
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+
+// ============================================================
+// STATIC FILES
+// ============================================================
+
+// CSS, JavaScript and other files inside public/
+app.use(express.static(path.join(__dirname, "public")));
+
+
+// ============================================================
+// GEMINI API ROUTE
+// ============================================================
+
+app.use("/api/gemini", geminiRoutes);
+
+
+// ============================================================
+// MONGODB CONNECTION
+// ============================================================
+
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log("MongoDB error:", err.message));
+  .then(() => {
+    console.log("MongoDB connected");
+  })
+  .catch((err) => {
+    console.log("MongoDB error:", err.message);
+  });
+
+
+// ============================================================
+// CLASSROOM SCHEMA
+// ============================================================
 
 const classSchema = new mongoose.Schema(
   {
-    code: { type: String, unique: true, required: true },
-    topic: { type: String, required: true },
-    quizQuestion: { type: String, required: true },
-    quizOptions: [{ type: String }],
-    correctAnswer: { type: Number, required: true }
+    code: {
+      type: String,
+      unique: true,
+      required: true
+    },
+
+    topic: {
+      type: String,
+      required: true
+    },
+
+    quizQuestion: {
+      type: String,
+      required: true
+    },
+
+    quizOptions: [
+      {
+        type: String
+      }
+    ],
+
+    correctAnswer: {
+      type: Number,
+      required: true
+    }
   },
-  { timestamps: true }
+  {
+    timestamps: true
+  }
 );
+
+
+// ============================================================
+// RESPONSE SCHEMA
+// ============================================================
 
 const responseSchema = new mongoose.Schema(
   {
-    classCode: { type: String, required: true, index: true },
+    classCode: {
+      type: String,
+      required: true,
+      index: true
+    },
+
     understanding: {
       type: String,
-      enum: ["understand", "somewhat", "dont-understand"],
+      enum: [
+        "understand",
+        "somewhat",
+        "dont-understand"
+      ],
       required: true
     },
-    topic: { type: String, required: true },
-    quizAnswer: { type: Number, required: true },
-    quizCorrect: { type: Boolean, required: true }
+
+    topic: {
+      type: String,
+      required: true
+    },
+
+    quizAnswer: {
+      type: Number,
+      required: true
+    },
+
+    quizCorrect: {
+      type: Boolean,
+      required: true
+    }
   },
-  { timestamps: true }
+  {
+    timestamps: true
+  }
 );
 
-const Classroom = mongoose.model("Classroom", classSchema);
-const Response = mongoose.model("Response", responseSchema);
+
+const Classroom = mongoose.model(
+  "Classroom",
+  classSchema
+);
+
+const Response = mongoose.model(
+  "Response",
+  responseSchema
+);
+
+
+// ============================================================
+// CLASS CODE GENERATOR
+// ============================================================
 
 function makeCode() {
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
+  return Math.random()
+    .toString(36)
+    .substring(2, 8)
+    .toUpperCase();
 }
 
+
+// ============================================================
+// GET CLASS STATISTICS
+// ============================================================
+
 async function getStats(code) {
-  const responses = await Response.find({ classCode: code }).lean();
+
+  const responses = await Response
+    .find({ classCode: code })
+    .lean();
 
   const total = responses.length;
-  const understand = responses.filter(r => r.understanding === "understand").length;
-  const somewhat = responses.filter(r => r.understanding === "somewhat").length;
-  const dontUnderstand = responses.filter(r => r.understanding === "dont-understand").length;
-  const correct = responses.filter(r => r.quizCorrect).length;
 
-  // Simple hackathon-friendly Classroom Resonance Index.
-  // Understanding: 70% weight, quiz accuracy: 30% weight.
+  const understand = responses.filter(
+    r => r.understanding === "understand"
+  ).length;
+
+  const somewhat = responses.filter(
+    r => r.understanding === "somewhat"
+  ).length;
+
+  const dontUnderstand = responses.filter(
+    r => r.understanding === "dont-understand"
+  ).length;
+
+  const correct = responses.filter(
+    r => r.quizCorrect
+  ).length;
+
+
+  // Classroom Resonance Index
+  // Understanding = 70%
+  // Quiz accuracy = 30%
+
   const understandingScore = total
     ? ((understand * 100) + (somewhat * 50)) / total
     : 0;
 
-  const quizScore = total ? (correct / total) * 100 : 0;
-  const cri = total
-    ? Math.round((understandingScore * 0.7) + (quizScore * 0.3))
+  const quizScore = total
+    ? (correct / total) * 100
     : 0;
 
+  const cri = total
+    ? Math.round(
+        (understandingScore * 0.7) +
+        (quizScore * 0.3)
+      )
+    : 0;
+
+
   let status = "Waiting for responses";
-  if (total > 0 && cri >= 75) status = "Class is following well";
-  else if (total > 0 && cri >= 50) status = "Some students may need clarification";
-  else if (total > 0) status = "Topic needs more explanation";
+
+
+  if (total > 0 && cri >= 75) {
+
+    status = "Class is following well";
+
+  } else if (total > 0 && cri >= 50) {
+
+    status = "Some students may need clarification";
+
+  } else if (total > 0) {
+
+    status = "Topic needs more explanation";
+
+  }
+
 
   return {
+
     total,
+
     understand,
+
     somewhat,
+
     dontUnderstand,
+
     correct,
-    quizAccuracy: total ? Math.round((correct / total) * 100) : 0,
+
+    quizAccuracy: total
+      ? Math.round((correct / total) * 100)
+      : 0,
+
     cri,
+
     status
   };
 }
 
+
+// ============================================================
+// EJS PAGE ROUTES
+// ============================================================
+
+// Home / Login page
 app.get("/", (req, res) => {
+
   res.render("home");
+
 });
 
+
+// Teacher dashboard
 app.get("/teacher", (req, res) => {
+
   res.render("teacher");
+
 });
 
+
+// Student dashboard
 app.get("/student", (req, res) => {
+
   res.render("student");
+
 });
+
+
+// ============================================================
+// CREATE CLASSROOM
+// ============================================================
 
 app.post("/api/classrooms", async (req, res) => {
+
   try {
-    const { topic, quizQuestion, quizOptions, correctAnswer } = req.body;
 
-    if (!topic || !quizQuestion || !quizOptions || correctAnswer === undefined) {
-      return res.status(400).json({ message: "Please fill all fields." });
-    }
-
-    let code;
-    do {
-      code = makeCode();
-    } while (await Classroom.exists({ code }));
-
-    const classroom = await Classroom.create({
-      code,
+    const {
       topic,
       quizQuestion,
       quizOptions,
+      correctAnswer
+    } = req.body;
+
+
+    if (
+      !topic ||
+      !quizQuestion ||
+      !quizOptions ||
+      correctAnswer === undefined
+    ) {
+
+      return res.status(400).json({
+        message: "Please fill all fields."
+      });
+
+    }
+
+
+    let code;
+
+
+    do {
+
+      code = makeCode();
+
+    } while (
+      await Classroom.exists({ code })
+    );
+
+
+    const classroom = await Classroom.create({
+
+      code,
+
+      topic,
+
+      quizQuestion,
+
+      quizOptions,
+
       correctAnswer: Number(correctAnswer)
+
     });
 
-    res.json({ code: classroom.code });
-  } catch (err) {
-    res.status(500).json({ message: "Could not create class." });
-  }
-});
-
-app.get("/api/classrooms/:code", async (req, res) => {
-  try {
-    const code = req.params.code.toUpperCase();
-    const classroom = await Classroom.findOne({ code }).lean();
-
-    if (!classroom) {
-      return res.status(404).json({ message: "Class not found." });
-    }
 
     res.json({
-      code: classroom.code,
-      topic: classroom.topic,
-      quizQuestion: classroom.quizQuestion,
-      quizOptions: classroom.quizOptions
+
+      code: classroom.code
+
     });
+
+
   } catch (err) {
-    res.status(500).json({ message: "Server error." });
+
+    console.log(err);
+
+    res.status(500).json({
+
+      message: "Could not create class."
+
+    });
+
   }
+
 });
+
+
+// ============================================================
+// GET CLASSROOM
+// ============================================================
+
+app.get("/api/classrooms/:code", async (req, res) => {
+
+  try {
+
+    const code =
+      req.params.code.toUpperCase();
+
+
+    const classroom =
+      await Classroom
+        .findOne({ code })
+        .lean();
+
+
+    if (!classroom) {
+
+      return res.status(404).json({
+
+        message: "Class not found."
+
+      });
+
+    }
+
+
+    res.json({
+
+      code: classroom.code,
+
+      topic: classroom.topic,
+
+      quizQuestion:
+        classroom.quizQuestion,
+
+      quizOptions:
+        classroom.quizOptions
+
+    });
+
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.status(500).json({
+
+      message: "Server error."
+
+    });
+
+  }
+
+});
+
+
+// ============================================================
+// SUBMIT STUDENT RESPONSE
+// ============================================================
 
 app.post("/api/responses", async (req, res) => {
-  try {
-    const { classCode, understanding, quizAnswer } = req.body;
 
-    const classroom = await Classroom.findOne({
-      code: classCode.toUpperCase()
-    });
+  try {
+
+    const {
+      classCode,
+      understanding,
+      quizAnswer
+    } = req.body;
+
+
+    const classroom =
+      await Classroom.findOne({
+
+        code: classCode.toUpperCase()
+
+      });
+
 
     if (!classroom) {
-      return res.status(404).json({ message: "Class not found." });
+
+      return res.status(404).json({
+
+        message: "Class not found."
+
+      });
+
     }
 
-    const validLevels = ["understand", "somewhat", "dont-understand"];
-    if (!validLevels.includes(understanding)) {
-      return res.status(400).json({ message: "Invalid understanding level." });
+
+    const validLevels = [
+
+      "understand",
+
+      "somewhat",
+
+      "dont-understand"
+
+    ];
+
+
+    if (
+      !validLevels.includes(
+        understanding
+      )
+    ) {
+
+      return res.status(400).json({
+
+        message:
+          "Invalid understanding level."
+
+      });
+
     }
+
 
     const answer = Number(quizAnswer);
-    const saved = await Response.create({
+
+
+    await Response.create({
+
       classCode: classroom.code,
+
       understanding,
+
       topic: classroom.topic,
+
       quizAnswer: answer,
-      quizCorrect: answer === classroom.correctAnswer
+
+      quizCorrect:
+        answer ===
+        classroom.correctAnswer
+
     });
 
-    const stats = await getStats(classroom.code);
-    io.to(classroom.code).emit("stats:update", stats);
 
-    res.json({ message: "Response submitted.", stats });
+    const stats =
+      await getStats(classroom.code);
+
+
+    // Send updated statistics
+    // to all teachers watching this class
+
+    io
+      .to(classroom.code)
+      .emit(
+        "stats:update",
+        stats
+      );
+
+
+    res.json({
+
+      message:
+        "Response submitted.",
+
+      stats
+
+    });
+
+
   } catch (err) {
-    res.status(500).json({ message: "Could not submit response." });
+
+    console.log(err);
+
+    res.status(500).json({
+
+      message:
+        "Could not submit response."
+
+    });
+
   }
+
 });
+
+
+// ============================================================
+// GET CLASS STATISTICS
+// ============================================================
 
 app.get("/api/stats/:code", async (req, res) => {
+
   try {
-    const code = req.params.code.toUpperCase();
-    const classroom = await Classroom.findOne({ code });
+
+    const code =
+      req.params.code.toUpperCase();
+
+
+    const classroom =
+      await Classroom.findOne({
+        code
+      });
+
 
     if (!classroom) {
-      return res.status(404).json({ message: "Class not found." });
+
+      return res.status(404).json({
+
+        message: "Class not found."
+
+      });
+
     }
 
-    const stats = await getStats(code);
+
+    const stats =
+      await getStats(code);
+
+
     res.json(stats);
+
+
   } catch (err) {
-    res.status(500).json({ message: "Could not load stats." });
+
+    console.log(err);
+
+    res.status(500).json({
+
+      message:
+        "Could not load stats."
+
+    });
+
   }
+
 });
+
+
+// ============================================================
+// SOCKET.IO
+// ============================================================
 
 io.on("connection", (socket) => {
+
+  console.log(
+    "User connected:",
+    socket.id
+  );
+
+
   socket.on("join-class", (code) => {
-    socket.join(code.toUpperCase());
+
+    if (!code) return;
+
+
+    socket.join(
+      code.toUpperCase()
+    );
+
   });
+
+
+  socket.on("disconnect", () => {
+
+    console.log(
+      "User disconnected:",
+      socket.id
+    );
+
+  });
+
 });
 
+
+// ============================================================
+// START SERVER
+// ============================================================
+
 server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+
+  console.log(
+    `Server running at http://localhost:${PORT}`
+  );
+
 });
