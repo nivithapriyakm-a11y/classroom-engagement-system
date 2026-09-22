@@ -37,16 +37,16 @@ app.set("views", path.join(__dirname, "views"));
 // STATIC FILES
 // ============================================================
 
-// CSS, JavaScript and other files inside public/
 app.use(express.static(path.join(__dirname, "public")));
 
 
 // ============================================================
-// GEMINI API ROUTE
+// API ROUTES
 // ============================================================
 
 app.use("/api/gemini", geminiRoutes);
 app.use("/api/auth", authRoutes);
+
 
 // ============================================================
 // CLASSROOM SCHEMA
@@ -160,7 +160,9 @@ function makeCode() {
 async function getStats(code) {
 
   const responses = await Response
-    .find({ classCode: code })
+    .find({
+      classCode: code
+    })
     .lean();
 
   const total = responses.length;
@@ -182,12 +184,17 @@ async function getStats(code) {
   ).length;
 
 
-  // Classroom Resonance Index
+  // ==========================================================
+  // CLASSROOM RESONANCE INDEX
   // Understanding = 70%
   // Quiz accuracy = 30%
+  // ==========================================================
 
   const understandingScore = total
-    ? ((understand * 100) + (somewhat * 50)) / total
+    ? (
+        (understand * 100) +
+        (somewhat * 50)
+      ) / total
     : 0;
 
   const quizScore = total
@@ -202,8 +209,11 @@ async function getStats(code) {
     : 0;
 
 
-  let status = "Waiting for responses";
+  // ==========================================================
+  // CLASS STATUS
+  // ==========================================================
 
+  let status = "Waiting for responses";
 
   if (total > 0 && cri >= 75) {
 
@@ -233,12 +243,15 @@ async function getStats(code) {
     correct,
 
     quizAccuracy: total
-      ? Math.round((correct / total) * 100)
+      ? Math.round(
+          (correct / total) * 100
+        )
       : 0,
 
     cri,
 
     status
+
   };
 }
 
@@ -247,7 +260,6 @@ async function getStats(code) {
 // EJS PAGE ROUTES
 // ============================================================
 
-// Home / Login page
 app.get("/", (req, res) => {
 
   res.render("home");
@@ -255,7 +267,6 @@ app.get("/", (req, res) => {
 });
 
 
-// Teacher dashboard
 app.get("/teacher", (req, res) => {
 
   res.render("teacher");
@@ -263,7 +274,6 @@ app.get("/teacher", (req, res) => {
 });
 
 
-// Student dashboard
 app.get("/student", (req, res) => {
 
   res.render("student");
@@ -295,7 +305,9 @@ app.post("/api/classrooms", async (req, res) => {
     ) {
 
       return res.status(400).json({
+
         message: "Please fill all fields."
+
       });
 
     }
@@ -303,29 +315,32 @@ app.post("/api/classrooms", async (req, res) => {
 
     let code;
 
-
     do {
 
       code = makeCode();
 
     } while (
-      await Classroom.exists({ code })
+      await Classroom.exists({
+        code
+      })
     );
 
 
-    const classroom = await Classroom.create({
+    const classroom =
+      await Classroom.create({
 
-      code,
+        code,
 
-      topic,
+        topic,
 
-      quizQuestion,
+        quizQuestion,
 
-      quizOptions,
+        quizOptions,
 
-      correctAnswer: Number(correctAnswer)
+        correctAnswer:
+          Number(correctAnswer)
 
-    });
+      });
 
 
     res.json({
@@ -364,7 +379,9 @@ app.get("/api/classrooms/:code", async (req, res) => {
 
     const classroom =
       await Classroom
-        .findOne({ code })
+        .findOne({
+          code
+        })
         .lean();
 
 
@@ -424,6 +441,21 @@ app.post("/api/responses", async (req, res) => {
     } = req.body;
 
 
+    // ========================================================
+    // FIND CLASSROOM
+    // ========================================================
+
+    if (!classCode) {
+
+      return res.status(400).json({
+
+        message: "Class code is required."
+
+      });
+
+    }
+
+
     const classroom =
       await Classroom.findOne({
 
@@ -442,6 +474,10 @@ app.post("/api/responses", async (req, res) => {
 
     }
 
+
+    // ========================================================
+    // VALIDATE UNDERSTANDING
+    // ========================================================
 
     const validLevels = [
 
@@ -470,18 +506,45 @@ app.post("/api/responses", async (req, res) => {
     }
 
 
+    // ========================================================
+    // VALIDATE QUIZ ANSWER
+    // ========================================================
+
     const answer = Number(quizAnswer);
 
 
+    if (
+      !Number.isInteger(answer) ||
+      answer < 0 ||
+      answer >= classroom.quizOptions.length
+    ) {
+
+      return res.status(400).json({
+
+        message:
+          "Invalid quiz answer."
+
+      });
+
+    }
+
+
+    // ========================================================
+    // SAVE STUDENT RESPONSE
+    // ========================================================
+
     await Response.create({
 
-      classCode: classroom.code,
+      classCode:
+        classroom.code,
 
       understanding,
 
-      topic: classroom.topic,
+      topic:
+        classroom.topic,
 
-      quizAnswer: answer,
+      quizAnswer:
+        answer,
 
       quizCorrect:
         answer ===
@@ -490,12 +553,30 @@ app.post("/api/responses", async (req, res) => {
     });
 
 
+    // ========================================================
+    // GET UPDATED STATISTICS
+    // ========================================================
+
     const stats =
-      await getStats(classroom.code);
+      await getStats(
+        classroom.code
+      );
 
 
-    // Send updated statistics
-    // to all teachers watching this class
+    // ========================================================
+    // SEND LIVE UPDATE TO TEACHER
+    // ========================================================
+
+    console.log(
+      "Sending live stats to class:",
+      classroom.code
+    );
+
+    console.log(
+      "Stats:",
+      stats
+    );
+
 
     io
       .to(classroom.code)
@@ -504,6 +585,10 @@ app.post("/api/responses", async (req, res) => {
         stats
       );
 
+
+    // ========================================================
+    // SEND RESPONSE TO STUDENT
+    // ========================================================
 
     res.json({
 
@@ -545,7 +630,9 @@ app.get("/api/stats/:code", async (req, res) => {
 
     const classroom =
       await Classroom.findOne({
+
         code
+
       });
 
 
@@ -553,7 +640,8 @@ app.get("/api/stats/:code", async (req, res) => {
 
       return res.status(404).json({
 
-        message: "Class not found."
+        message:
+          "Class not found."
 
       });
 
@@ -595,17 +683,50 @@ io.on("connection", (socket) => {
   );
 
 
+  // ==========================================================
+  // JOIN CLASS
+  // ==========================================================
+
   socket.on("join-class", (code) => {
 
-    if (!code) return;
+    if (!code) {
+
+      console.log(
+        "No class code received."
+      );
+
+      return;
+
+    }
 
 
-    socket.join(
-      code.toUpperCase()
+    const roomCode =
+      code
+        .toString()
+        .trim()
+        .toUpperCase();
+
+
+    socket.join(roomCode);
+
+
+    console.log(
+      `Socket ${socket.id} joined class room: ${roomCode}`
+    );
+
+
+    // Confirm that the socket joined
+    socket.emit(
+      "class-joined",
+      roomCode
     );
 
   });
 
+
+  // ==========================================================
+  // DISCONNECT
+  // ==========================================================
 
   socket.on("disconnect", () => {
 
@@ -635,35 +756,65 @@ async function startServer() {
 
     }
 
+
     await mongoose.connect(
       process.env.MONGO_URI
     );
 
-    console.log("----------------------------------");
-    console.log("MongoDB connected successfully");
-    console.log("Database: classplus");
-    console.log("----------------------------------");
+
+    console.log(
+      "----------------------------------"
+    );
+
+    console.log(
+      "MongoDB connected successfully"
+    );
+
+    console.log(
+      "Database: classplus"
+    );
+
+    console.log(
+      "----------------------------------"
+    );
 
 
-    server.listen(PORT, () => {
+    server.listen(
+      PORT,
+      () => {
 
-      console.log(
-        `Server running at http://localhost:${PORT}`
-      );
+        console.log(
+          `Server running at http://localhost:${PORT}`
+        );
 
-    });
+      }
+    );
+
 
   } catch (error) {
 
-    console.error("----------------------------------");
-    console.error("MongoDB connection failed");
-    console.error(error.message);
-    console.error("----------------------------------");
+    console.error(
+      "----------------------------------"
+    );
+
+    console.error(
+      "MongoDB connection failed"
+    );
+
+    console.error(
+      error.message
+    );
+
+    console.error(
+      "----------------------------------"
+    );
+
 
     process.exit(1);
 
   }
 
 }
+
 
 startServer();

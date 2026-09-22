@@ -12,10 +12,6 @@
 
 <body>
 
-    <!-- =====================================================
-         NAVBAR
-    ====================================================== -->
-
     <nav class="dashboard-navbar">
 
         <div class="dashboard-brand">
@@ -46,13 +42,7 @@
     </nav>
 
 
-    <!-- =====================================================
-         MAIN CONTENT
-    ====================================================== -->
-
     <main class="dashboard-container">
-
-        <!-- Welcome -->
 
         <section class="dashboard-welcome">
 
@@ -80,10 +70,6 @@
         </section>
 
 
-        <!-- =================================================
-             CREATE CLASS
-        ================================================== -->
-
         <section class="dashboard-card">
 
             <div class="card-heading">
@@ -105,8 +91,6 @@
 
             <form id="create-class-form">
 
-                <!-- Topic -->
-
                 <div class="form-group">
 
                     <label for="topic">
@@ -117,14 +101,12 @@
                         type="text"
                         id="topic"
                         name="topic"
-                        placeholder="Example: Introduction to Artificial Intelligence"
+                        placeholder="Example: Python Basics"
                         required
                     >
 
                 </div>
 
-
-                <!-- Quiz Question -->
 
                 <div class="form-group">
 
@@ -142,8 +124,6 @@
 
                 </div>
 
-
-                <!-- Options -->
 
                 <div class="quiz-options-grid">
 
@@ -213,8 +193,6 @@
                 </div>
 
 
-                <!-- Correct Answer -->
-
                 <div class="form-group">
 
                     <label for="correctAnswer">
@@ -258,8 +236,6 @@
             </form>
 
 
-            <!-- Success -->
-
             <div
                 id="class-created"
                 class="class-code-box hidden"
@@ -292,10 +268,6 @@
 
         </section>
 
-
-        <!-- =================================================
-             CLASS STATISTICS
-        ================================================== -->
 
         <section
             id="statistics-section"
@@ -401,17 +373,51 @@
 
     </main>
 
+
+    <!-- Socket.IO MUST COME BEFORE OUR SCRIPT -->
+
     <script src="/socket.io/socket.io.js"></script>
-    
-    <!-- =====================================================
-         SCRIPT
-    ====================================================== -->
+
 
     <script>
 
+        // ==================================================
+        // SOCKET.IO
+        // ==================================================
+
+        const socket = io();
+
         let currentClassCode = "";
 
+        // ==================================================
+// SOCKET CONNECTION
+// ==================================================
 
+socket.on("connect", function() {
+
+    console.log(
+        "Teacher connected to Socket.IO:",
+        socket.id
+    );
+
+});
+
+
+// ==================================================
+// CLASS ROOM JOIN CONFIRMATION
+// ==================================================
+
+socket.on(
+    "class-joined",
+    function(code) {
+
+        console.log(
+            "Teacher joined class room:",
+            code
+        );
+
+    }
+);
         // ==================================================
         // CREATE CLASS
         // ==================================================
@@ -424,31 +430,40 @@
 
 
                 const topic =
-                    document.getElementById("topic").value.trim();
+                    document
+                        .getElementById("topic")
+                        .value
+                        .trim();
+
 
                 const quizQuestion =
                     document
                         .getElementById("quizQuestion")
-                        .value.trim();
+                        .value
+                        .trim();
 
 
                 const quizOptions = [
 
                     document
                         .getElementById("option0")
-                        .value.trim(),
+                        .value
+                        .trim(),
 
                     document
                         .getElementById("option1")
-                        .value.trim(),
+                        .value
+                        .trim(),
 
                     document
                         .getElementById("option2")
-                        .value.trim(),
+                        .value
+                        .trim(),
 
                     document
                         .getElementById("option3")
-                        .value.trim()
+                        .value
+                        .trim()
 
                 ];
 
@@ -459,7 +474,8 @@
                         .value;
 
 
-                if (!topic ||
+                if (
+                    !topic ||
                     !quizQuestion ||
                     quizOptions.some(option => !option) ||
                     correctAnswer === ""
@@ -486,11 +502,13 @@
 
                             body: JSON.stringify({
 
-                                topic,
+                                topic: topic,
 
-                                quizQuestion,
+                                quizQuestion:
+                                    quizQuestion,
 
-                                quizOptions,
+                                quizOptions:
+                                    quizOptions,
 
                                 correctAnswer:
                                     Number(correctAnswer)
@@ -538,34 +556,17 @@
                         .remove("hidden");
 
 
-                    // Start loading statistics
+                    // Join teacher to this class room
+
+                    socket.emit(
+                        "join-class",
+                        currentClassCode
+                    );
+
+
+                    // Load current statistics
 
                     loadStats();
-
-
-                    // Join Socket.IO room
-
-                    if (typeof io !== "undefined") {
-
-                        const socket =
-                            io();
-
-                        socket.emit(
-                            "join-class",
-                            currentClassCode
-                        );
-
-
-                        socket.on(
-                            "stats:update",
-                            function(stats) {
-
-                                updateStats(stats);
-
-                            }
-                        );
-
-                    }
 
 
                 } catch (error) {
@@ -579,6 +580,25 @@
                 }
 
             });
+
+
+        // ==================================================
+        // RECEIVE LIVE STATISTICS
+        // ==================================================
+
+        socket.on(
+            "stats:update",
+            function(stats) {
+
+                console.log(
+                    "Live statistics received:",
+                    stats
+                );
+
+                updateStats(stats);
+
+            }
+        );
 
 
         // ==================================================
@@ -680,6 +700,13 @@
 
                     alert(
                         "Class code copied!"
+                    );
+
+                })
+                .catch(function() {
+
+                    alert(
+                        "Could not copy class code."
                     );
 
                 });

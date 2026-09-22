@@ -19,10 +19,6 @@
 <body>
 
 
-    <!-- =====================================================
-         NAVBAR
-    ====================================================== -->
-
     <nav class="dashboard-navbar">
 
         <div class="dashboard-brand">
@@ -66,14 +62,8 @@
 
 
 
-    <!-- =====================================================
-         MAIN
-    ====================================================== -->
-
     <main class="dashboard-container">
 
-
-        <!-- Welcome -->
 
         <section class="dashboard-welcome">
 
@@ -102,10 +92,6 @@
         </section>
 
 
-
-        <!-- =================================================
-             JOIN CLASS
-        ================================================== -->
 
         <section class="dashboard-card">
 
@@ -169,10 +155,6 @@
 
 
 
-        <!-- =================================================
-             CLASS CONTENT
-        ================================================== -->
-
         <section
             id="class-content"
             class="dashboard-card hidden"
@@ -211,8 +193,6 @@
 
             </div>
 
-
-            <!-- Understanding -->
 
             <div class="understanding-section">
 
@@ -264,10 +244,6 @@
 
 
 
-            <!-- =================================================
-                 QUIZ
-            ================================================== -->
-
             <div class="quiz-section">
 
                 <div class="quiz-number">
@@ -297,7 +273,6 @@
             </div>
 
 
-            <!-- Result -->
 
             <div
                 id="response-result"
@@ -324,11 +299,17 @@
 
 
 
-    <!-- =====================================================
-         SCRIPT
-    ====================================================== -->
+    <script src="/socket.io/socket.io.js"></script>
+
 
     <script>
+
+        // ==================================================
+        // SOCKET.IO
+        // ==================================================
+
+        const socket = io();
+
 
         let currentClassCode = "";
 
@@ -404,7 +385,13 @@
                             data.code;
 
 
-                        // Show class
+                        // Join the same Socket.IO room
+
+                        socket.emit(
+                            "join-class",
+                            currentClassCode
+                        );
+
 
                         document
                             .getElementById(
@@ -437,8 +424,6 @@
                             .textContent =
                             data.quizQuestion;
 
-
-                        // Create quiz options
 
                         const optionsContainer =
                             document.getElementById(
@@ -508,8 +493,6 @@
                             }
                         );
 
-
-                        // Scroll to class
 
                         document
                             .getElementById(
@@ -627,6 +610,21 @@
                 "click",
                 async function() {
 
+                    if (
+                        !currentClassCode ||
+                        !selectedUnderstanding ||
+                        selectedAnswer === null
+                    ) {
+
+                        alert(
+                            "Please select your understanding and quiz answer."
+                        );
+
+                        return;
+
+                    }
+
+
                     try {
 
                         const response =
@@ -690,6 +688,12 @@
                             )
                             .disabled =
                             true;
+
+
+                        console.log(
+                            "Response submitted:",
+                            data.stats
+                        );
 
 
                     } catch (error) {
